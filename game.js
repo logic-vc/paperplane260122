@@ -160,17 +160,35 @@ const UpgradeData = {
 // ==================== 게임 물리 및 비행 시스템 ====================
 class FlightPhysics {
     constructor() {
-        this.gravity = 9.8;
-        this.airResistance = 0.02;
+        this.gravity = 15.0; // 중력 증가 (더 빨리 떨어지도록)
+        this.airResistanceX = 0.15; // 수평 공기 저항 증가
+        this.airResistanceY = 0.08; // 수직 공기 저항 추가
         this.windStrength = 0;
         this.windDirection = 0;
     }
 
     calculateForces(plane, velocity, altitude) {
+        // 현재 속도 크기 계산
+        const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+
+        // 양력은 수평 속도에 비례하지만, 속도가 느려지면 급격히 감소
+        // 최소 속도 임계값을 두어 느린 속도에서는 양력이 거의 없음
+        const minSpeedForLift = 5;
+        const liftFactor = Math.max(0, velocity.x - minSpeedForLift);
+        const lift = liftFactor * plane.lift * 0.08; // 양력 계수 대폭 감소
+
+        // 공기 저항은 속도의 제곱에 비례
+        const dragX = -Math.sign(velocity.x) * velocity.x * velocity.x * this.airResistanceX;
+        const dragY = -Math.sign(velocity.y) * velocity.y * velocity.y * this.airResistanceY;
+
+        // 중력은 항상 아래로 작용
+        const gravity = -this.gravity * plane.weight;
+
         const forces = {
-            gravity: -this.gravity * plane.weight,
-            lift: velocity.x * plane.lift * 0.5,
-            drag: -velocity.x * velocity.x * this.airResistance,
+            gravity: gravity,
+            lift: lift,
+            dragX: dragX,
+            dragY: dragY,
             wind: this.windStrength
         };
 
@@ -178,21 +196,31 @@ class FlightPhysics {
     }
 
     update(plane, velocity, position, deltaTime) {
+        // deltaTime을 제한하여 물리 계산 안정성 확보
+        const dt = Math.min(deltaTime, 0.05);
+
         const forces = this.calculateForces(plane, velocity, position.y);
 
         // 속도 업데이트
-        velocity.y += (forces.gravity + forces.lift) * deltaTime;
-        velocity.x += (forces.drag + forces.wind) * deltaTime;
+        // Y축: 중력 + 양력 + 수직 드래그
+        velocity.y += (forces.gravity + forces.lift + forces.dragY) * dt;
+
+        // X축: 수평 드래그 + 바람
+        velocity.x += (forces.dragX + forces.wind) * dt;
+
+        // 최소 속도 제한 (너무 느려지면 0으로)
+        if (Math.abs(velocity.x) < 0.5) velocity.x = 0.5; // 최소 수평 속도 유지
+        if (velocity.x < 0) velocity.x = 0; // 뒤로 가지 않도록
 
         // 위치 업데이트
-        position.x += velocity.x * deltaTime;
-        position.y += velocity.y * deltaTime;
+        position.x += velocity.x * dt;
+        position.y += velocity.y * dt;
 
         // 지면 충돌 체크
         if (position.y <= 0) {
             position.y = 0;
             velocity.y = 0;
-            velocity.x *= 0.5; // 착지 시 속도 감소
+            velocity.x = 0; // 착지 시 완전 정지
             return true; // 착지
         }
 
