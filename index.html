@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>종이비행기 날리기 - Paper Airplane Flight</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 메인 메뉴 화면 -->
+    <div id="main-menu" class="screen active">
+        <div class="menu-container">
+            <h1 class="game-title">종이비행기 날리기</h1>
+            <p class="game-subtitle">Paper Airplane Flight</p>
+
+            <div class="menu-buttons">
+                <button class="btn btn-primary" onclick="showModeSelection()">게임 시작</button>
+                <button class="btn btn-secondary" onclick="showHangar()">비행기 격납고</button>
+                <button class="btn btn-secondary" onclick="showUpgrades()">업그레이드</button>
+                <button class="btn btn-secondary" onclick="showLeaderboard()">리더보드</button>
+                <button class="btn btn-secondary" onclick="showHelp()">도움말</button>
+            </div>
+
+            <div class="stats-display">
+                <div class="stat-item">
+                    <span class="stat-label">코인:</span>
+                    <span class="stat-value" id="player-coins">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">최고 거리:</span>
+                    <span class="stat-value" id="best-distance">0m</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">최장 시간:</span>
+                    <span class="stat-value" id="best-duration">0s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모드 선택 화면 -->
+    <div id="mode-selection" class="screen">
+        <div class="mode-container">
+            <h2>게임 모드 선택</h2>
+
+            <div class="mode-cards">
+                <div class="mode-card" onclick="startGame('distance')">
+                    <div class="mode-icon">🚀</div>
+                    <h3>멀리 날리기</h3>
+                    <p>가장 먼 거리를 비행하세요</p>
+                    <ul class="mode-features">
+                        <li>속도와 추진력 중심</li>
+                        <li>낮은 각도 발사</li>
+                        <li>로켓형 비행기 추천</li>
+                    </ul>
+                </div>
+
+                <div class="mode-card" onclick="startGame('duration')">
+                    <div class="mode-icon">⏱️</div>
+                    <h3>오래 날리기</h3>
+                    <p>가장 오래 공중에 머무르세요</p>
+                    <ul class="mode-features">
+                        <li>양력과 체공 중심</li>
+                        <li>높은 각도 발사</li>
+                        <li>글라이더형 비행기 추천</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button class="btn btn-back" onclick="showMainMenu()">← 돌아가기</button>
+        </div>
+    </div>
+
+    <!-- 비행기 격납고 -->
+    <div id="hangar" class="screen">
+        <div class="hangar-container">
+            <h2>비행기 격납고</h2>
+            <div id="plane-list" class="plane-grid">
+                <!-- JavaScript로 동적 생성 -->
+            </div>
+            <button class="btn btn-back" onclick="showMainMenu()">← 돌아가기</button>
+        </div>
+    </div>
+
+    <!-- 업그레이드 화면 -->
+    <div id="upgrades" class="screen">
+        <div class="upgrade-container">
+            <h2>업그레이드</h2>
+            <div id="upgrade-list" class="upgrade-grid">
+                <!-- JavaScript로 동적 생성 -->
+            </div>
+            <button class="btn btn-back" onclick="showMainMenu()">← 돌아가기</button>
+        </div>
+    </div>
+
+    <!-- 리더보드 화면 -->
+    <div id="leaderboard" class="screen">
+        <div class="leaderboard-container">
+            <h2>리더보드</h2>
+
+            <div class="leaderboard-tabs">
+                <button class="tab-btn active" onclick="showLeaderboardTab('distance')">멀리 날리기</button>
+                <button class="tab-btn" onclick="showLeaderboardTab('duration')">오래 날리기</button>
+            </div>
+
+            <div id="leaderboard-content">
+                <!-- JavaScript로 동적 생성 -->
+            </div>
+
+            <button class="btn btn-back" onclick="showMainMenu()">← 돌아가기</button>
+        </div>
+    </div>
+
+    <!-- 도움말 화면 -->
+    <div id="help" class="screen">
+        <div class="help-container">
+            <h2>도움말</h2>
+
+            <div class="help-section">
+                <h3>게임 방법</h3>
+                <p><strong>발사:</strong> 스페이스바를 연타하여 파워 게이지를 충전하세요</p>
+                <p><strong>각도 조절:</strong> 마우스를 좌우로 움직이거나 화살표 키(←→)를 사용하세요</p>
+                <p><strong>부스터:</strong> 비행 중 스페이스바를 눌러 부스터를 발동하세요</p>
+                <p><strong>특수 능력:</strong> Q 키를 눌러 비행기의 특수 능력을 사용하세요</p>
+            </div>
+
+            <div class="help-section">
+                <h3>게임 모드</h3>
+                <p><strong>멀리 날리기:</strong> 가장 먼 거리를 비행하는 것이 목표입니다</p>
+                <p><strong>오래 날리기:</strong> 가장 오래 공중에 체공하는 것이 목표입니다</p>
+            </div>
+
+            <div class="help-section">
+                <h3>팁</h3>
+                <ul>
+                    <li>파워 게이지의 금색 구간(120-150%)에서 발사하면 퍼펙트 샷 보너스를 받습니다</li>
+                    <li>바람의 방향과 강도를 확인하고 전략을 세우세요</li>
+                    <li>상승 기류(녹색 화살표)를 활용하면 체공 시간이 늘어납니다</li>
+                    <li>장애물을 아슬아슬하게 피하면 보너스 점수를 받습니다</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-back" onclick="showMainMenu()">← 돌아가기</button>
+        </div>
+    </div>
+
+    <!-- 게임 플레이 화면 -->
+    <div id="game-screen" class="screen">
+        <!-- 상단 UI -->
+        <div id="game-ui">
+            <div class="ui-top">
+                <div class="ui-stat">
+                    <span class="ui-label">거리:</span>
+                    <span class="ui-value" id="current-distance">0m</span>
+                </div>
+                <div class="ui-stat">
+                    <span class="ui-label">시간:</span>
+                    <span class="ui-value" id="current-time">0.0s</span>
+                </div>
+                <div class="ui-stat">
+                    <span class="ui-label">고도:</span>
+                    <span class="ui-value" id="current-altitude">0m</span>
+                </div>
+                <div class="ui-stat">
+                    <span class="ui-label">속도:</span>
+                    <span class="ui-value" id="current-speed">0m/s</span>
+                </div>
+            </div>
+
+            <!-- 풍향계 -->
+            <div class="wind-indicator">
+                <div class="wind-icon" id="wind-icon">
+                    <span id="wind-arrow">→</span>
+                </div>
+                <div class="wind-info">
+                    <span id="wind-strength">바람: 보통</span>
+                </div>
+            </div>
+
+            <!-- 내구도 바 -->
+            <div class="durability-bar">
+                <div class="durability-label">내구도</div>
+                <div class="durability-fill" id="durability-fill" style="width: 100%"></div>
+            </div>
+
+            <!-- 부스터 표시 -->
+            <div class="booster-indicator">
+                <span>부스터: </span>
+                <span id="booster-count">3</span>
+                <span> (스페이스)</span>
+            </div>
+
+            <!-- 특수 능력 표시 -->
+            <div class="ability-indicator">
+                <span>특수능력: </span>
+                <span id="ability-status">준비됨</span>
+                <span> (Q)</span>
+            </div>
+        </div>
+
+        <!-- 게임 캔버스 -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- 발사 준비 UI -->
+        <div id="launch-ui" class="launch-ui active">
+            <div class="launch-container">
+                <h3>발사 준비</h3>
+
+                <!-- 파워 게이지 -->
+                <div class="power-gauge-container">
+                    <div class="gauge-label">파워 게이지 (스페이스바 연타)</div>
+                    <div class="power-gauge">
+                        <div class="gauge-zones">
+                            <div class="zone zone-weak" style="width: 50%">약함</div>
+                            <div class="zone zone-normal" style="width: 30%">보통</div>
+                            <div class="zone zone-strong" style="width: 20%">강함</div>
+                            <div class="zone zone-perfect" style="width: 20%">완벽</div>
+                            <div class="zone zone-gold" style="width: 30%">퍼펙트</div>
+                        </div>
+                        <div class="power-fill" id="power-fill"></div>
+                    </div>
+                    <div class="power-value" id="power-value">0%</div>
+                </div>
+
+                <!-- 각도 조절 -->
+                <div class="angle-control">
+                    <div class="angle-label">발사 각도 (마우스 또는 ←→)</div>
+                    <div class="angle-dial">
+                        <div class="angle-indicator" id="angle-indicator"></div>
+                        <div class="angle-value" id="angle-value">45°</div>
+                    </div>
+                    <input type="range" id="angle-slider" min="15" max="75" value="45" step="1">
+                </div>
+
+                <!-- 발사 버튼 -->
+                <button class="btn btn-launch" id="launch-btn" onclick="launchPlane()">
+                    발사! (Enter)
+                </button>
+
+                <div class="launch-tip">
+                    💡 팁: 120-150% 구간에서 발사하면 퍼펙트 샷 보너스!
+                </div>
+            </div>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="result-ui" class="result-ui">
+            <div class="result-container">
+                <h2 id="result-title">비행 완료!</h2>
+
+                <div class="result-stats">
+                    <div class="result-main">
+                        <div class="result-icon" id="result-icon">✈️</div>
+                        <div class="result-value" id="result-main-value">0</div>
+                        <div class="result-label" id="result-main-label">거리</div>
+                    </div>
+
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <span class="detail-label">비행 시간:</span>
+                            <span class="detail-value" id="result-time">0s</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">최대 고도:</span>
+                            <span class="detail-value" id="result-max-altitude">0m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">최고 속도:</span>
+                            <span class="detail-value" id="result-max-speed">0m/s</span>
+                        </div>
+                    </div>
+
+                    <div class="result-bonuses" id="result-bonuses">
+                        <!-- JavaScript로 동적 생성 -->
+                    </div>
+
+                    <div class="result-total">
+                        <span class="total-label">총 점수:</span>
+                        <span class="total-value" id="result-total-score">0</span>
+                    </div>
+
+                    <div class="result-rewards">
+                        <span class="reward-label">획득 코인:</span>
+                        <span class="reward-value" id="result-coins">+0</span>
+                    </div>
+                </div>
+
+                <div class="result-buttons">
+                    <button class="btn btn-primary" onclick="restartFlight()">다시 날리기</button>
+                    <button class="btn btn-secondary" onclick="showMainMenu()">메인 메뉴</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알림 메시지 -->
+    <div id="notification" class="notification"></div>
+
+    <!-- JavaScript -->
+    <script src="game.js"></script>
+</body>
+</html>
